@@ -8,10 +8,15 @@ from player_coverage_network import PlayerCoverageNetwork
 class PlayAnalyzer:
     def __init__(self):
         self.coverage_model_path = "./models/player_coverage/19/model.keras"
+        self.off_formation_model_path = "./models/offense_formation/0/model.keras"
         self.coverage_model = self._load_coverage_model()
         self.player_models = self._load_player_models()
+        self.off_formation_model = self._load_off_formation_model()
         self.blitz_model = load_model("./models/Cover-1_player/3/model.keras", custom_objects={"PlayerCoverageNetwork": PlayerCoverageNetwork})
         self.man_model = load_model("./models/Cover-1_player/4/model.keras", custom_objects={"PlayerCoverageNetwork": PlayerCoverageNetwork})
+
+    def _load_off_formation_model(self):
+        return load_model(self.off_formation_model_path, custom_objects={"CoverageNetwork": CoverageNetwork})
 
     def _load_coverage_model(self):
         return load_model(self.coverage_model_path, custom_objects={"GNNCoverageNetwork": CoverageNetwork})
@@ -49,6 +54,10 @@ class PlayAnalyzer:
         coverage_pred = np.argmax(coverage_preds)
         coverage = constants.COMMON_COVERAGE_FORMATIONS[coverage_pred]
 
+        formation_preds = self.off_formation_model(inputs)
+        formation_pred = np.argmax(formation_preds)
+        formation = constants.OFFENSE_FORMATIONS[formation_pred]
+
         num_players_map = {
             "Cover-1": 1,
             "Cover-2": 2,
@@ -75,5 +84,13 @@ class PlayAnalyzer:
             p_conf = {}
             for i, conf in enumerate(pred_safeties):
                 p_conf[d_players[i]["nflId"]] = conf
-            return {"coverage": [coverage, coverage_preds.numpy().squeeze()], "safeties": [safety_ids, p_conf], "blitzers": [blitzer_ids, None], "man": [man_ids, None]}
-        return {"coverage": coverage, "safeties": safety_ids, "blitzers": blitzer_ids, "man": man_ids}
+            return {"coverage": [coverage, coverage_preds.numpy().squeeze()],
+                    "off_formation": [formation, formation_preds.numpy().squeeze()],
+                    "safeties": [safety_ids, p_conf],
+                    "blitzers": [blitzer_ids, None],
+                    "man": [man_ids, None]}
+        return {"coverage": coverage,
+                "off_formation": formation,
+                "safeties": safety_ids,
+                "blitzers": blitzer_ids,
+                "man": man_ids}

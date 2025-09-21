@@ -2,14 +2,9 @@ import matplotlib
 matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
-import numpy as np
 from matplotlib import animation
-from scipy.ndimage import zoom
-
-import constants
 from classifier_network import Classifier
 from data_compiler import DataCompiler
-import seaborn as sns
 
 
 class Field:
@@ -162,28 +157,8 @@ class Field:
 
         # Update ball position if it's part of the frame data
         self.update_ball(player_rows)
-        # self.plot_heatmap_on_field()
         self.update_side_text(player_rows)
         self._update_field_title(f"Game {player_rows.iloc[0]['gameId']} Play {player_rows.iloc[0]['playId']} -- Frame {frame}")
-
-    def plot_player_heatmap(self, play, position, color):
-        x = []
-        y = []
-        for frame in play:
-            for row in frame:
-                if row['position'] == position:
-                    x.append(row['x'])
-                    y.append(row['y'])
-        # Plot player positions as a heatmap
-        sns.kdeplot(
-            x=x,
-            y=y,
-            ax=self.axs[0],
-            cmap=color,
-            fill=True,
-            alpha=0.7,
-            bw_adjust=0.5
-        )
 
     def plot_players(self, player_rows, show_numbers=True, show_names=True, plot_coverage=False):
         teams = []

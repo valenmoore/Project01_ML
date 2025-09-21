@@ -3,18 +3,16 @@ matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.patches import FancyArrow
-import numpy as np
 from matplotlib import animation
 from scipy.ndimage import zoom
-
-import constants
-from classifier_network import Classifier
-from data_compiler import DataCompiler
-import seaborn as sns
 from annotated_play import AnnotatedPlay
 
-
 class AnnotatedField:
+    """
+    A class to display a frame-by-frame annotated field, including safety zones, blitzers, and marking matchups
+    Pairs with the AnnotatedPlay class.
+    """
+
     def __init__(self, field_length=120, field_width=53.3, interval=100):
         self.field_length = field_length
         self.field_width = field_width
@@ -96,6 +94,12 @@ class AnnotatedField:
         return plt, fig, axs
 
     def load_player_play_data(self, game_id, play_id):
+        """
+
+        :param game_id:
+        :param play_id:
+        :return:
+        """
         self.player_play_data = self.dc.get_all_player_play_data(game_id, play_id)
 
     def plot_play_animation(self, play: AnnotatedPlay):
@@ -118,11 +122,46 @@ class AnnotatedField:
         y_pos = 0.98  # Starting y-position (scaled to 0 to 1 range)
         line_spacing = -0.03  # Space between lines (scaled to 0 to 1 range)
 
+        off_formation = frame_info["off_formation"]
+        correct = off_formation == self.annotated_play.real_off_formation
+        self.axs[1].text(0.5, y_pos,
+                         f"Prediction: {off_formation}\n(actual: {self.annotated_play.real_off_formation})",
+                         ha='center', va='top', fontweight='bold', fontsize=10, color="green" if correct else "red",
+                         transform=self.axs[1].transAxes, zorder=5)
+
         coverage = frame_info["coverage"]
+        correct = coverage == self.annotated_play.real_coverage
         self.axs[1].text(0.5, y_pos + line_spacing * 2,
                          f"Prediction: {coverage}\n(actual: {self.annotated_play.real_coverage})",
+                         ha='center', va='top', fontweight='bold', fontsize=10, color="green" if correct else "red",
+                         transform=self.axs[1].transAxes, zorder=5)
+
+        self.axs[1].text(0.5, y_pos + line_spacing * 4, "Predicted Safeties:",
                          ha='center', va='top', fontweight='bold', fontsize=10, color="black",
                          transform=self.axs[1].transAxes, zorder=5)
+
+        player_rows = frame_info["players"]
+        y_pos = y_pos + line_spacing * 5
+        for nfl_id in frame_info["deep_safeties"]:
+            player = player_rows[player_rows["nflId"] == nfl_id].iloc[0]
+            name = player['displayName']
+            conf = float(frame_info["deep_safeties_conf"][nfl_id])
+            conf = round(conf, 4) * 100
+            self.axs[1].text(0.5, y_pos, f"{name} #{player['jerseyNumber']} ({conf:.2f}%):",
+                             ha='center', va='top', fontweight='bold', fontsize=10, color="black",
+                             transform=self.axs[1].transAxes, zorder=5)
+
+            self.axs[1].text(0.5, y_pos + line_spacing, f"s: {player['s']} y/s, a: {player['a']} y/s²",
+                             ha='center', va='top', fontweight='bold', fontsize=9, color="black",
+                             transform=self.axs[1].transAxes, zorder=5)
+
+            self.axs[1].text(0.5, y_pos + 2 * line_spacing, f"Position: {player['position']}",
+                             ha='center', va='top', fontweight='bold', fontsize=9, color="black",
+                             transform=self.axs[1].transAxes, zorder=5)
+
+            y_pos += 4 * line_spacing
+
+
 
         # Loop through player data and add text with rectangles
         """for player in player_rows:

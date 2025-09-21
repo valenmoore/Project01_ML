@@ -10,11 +10,16 @@ class AnnotatedPlay:
         self.game_id = game_id
         self.play_id = play_id
         self.play_info = None
+
         self.real_coverage = ""
+        self.real_off_formation = ""
+
         self.play_frames = []
         self.coverage_frames = []
-        self.deep_safety_frames = []
         self.coverage_conf_frames = []
+        self.off_formation_frames = []
+        self.off_formation_conf_frames = []
+        self.deep_safety_frames = []
         self.safety_conf_frames = []
         self.final_deep_safeties = []
         self.blitzer_frames = []
@@ -23,7 +28,6 @@ class AnnotatedPlay:
         self.before_snap_len = 0
 
         self._load_data()
-        # self._postprocess_data()
 
     def _load_data(self):
         play_frames = self.dc.get_play_tracking_by_id(game_id=self.game_id, play_id=self.play_id)
@@ -32,16 +36,22 @@ class AnnotatedPlay:
         info = self.dc.get_play_data_by_id(self.game_id, self.play_id)
         self.play_info = info
         self.real_coverage = info["pff_passCoverage"].iloc[0]
+        self.real_off_formation = info["offenseFormation"].iloc[0]
 
         for frame in play_frames:
             if frame.iloc[0]["frameType"] == "BEFORE_SNAP":
                 predictions = self.analyzer.analyze_frame(frame, return_confs=True)
                 self.coverage_frames.append(predictions["coverage"][0])
-                self.deep_safety_frames.append(predictions["safeties"][0])
                 self.coverage_conf_frames.append(predictions["coverage"][1])
                 self.safety_conf_frames.append(predictions["safeties"][1])
-                self.blitzer_frames.append(predictions["blitzers"][0])
-                self.man_frames.append(predictions["man"][0])
+                self.off_formation_conf_frames.append(predictions["off_formation"][1])
+                self.off_formation_frames.append(predictions["off_formation"][0])
+                safeties = predictions["safeties"][0]
+                self.deep_safety_frames.append(safeties)
+                blitzers = [p for p in predictions["blitzers"][0] if p not in safeties]
+                self.blitzer_frames.append(blitzers)
+                man = [p for p in predictions["man"][0] if p not in safeties]
+                self.man_frames.append(man)
             else:
                 self.before_snap_len = len(self.coverage_frames)
                 break
@@ -73,6 +83,12 @@ class AnnotatedPlay:
             idx = key
             if key >= self.before_snap_len:
                 idx = self.before_snap_len - 1
-            return {"players": self.play_frames[key], "coverage": self.coverage_frames[idx], "deep_safeties": self.deep_safety_frames[idx], "blitzers": self.blitzer_frames[idx], "man": self.man_frames[idx]}
+            return {"players": self.play_frames[key],
+                    "coverage": self.coverage_frames[idx],
+                    "deep_safeties": self.deep_safety_frames[idx],
+                    "deep_safeties_conf": self.safety_conf_frames[idx],
+                    "blitzers": self.blitzer_frames[idx],
+                    "man": self.man_frames[idx],
+                    "off_formation": self.off_formation_frames[idx]}
         else:
             raise TypeError(f"Invalid index type (given {type(key)}).")
