@@ -23,6 +23,15 @@
 | Offensive Formation | 98.6           | 96.5         |
 
 Success with offensive formation is particularly significant; the model is able to accurately predict offensive formation just from defensive formation.
+
+The model was mostly successful at predicting binary player-by-player tasks. These tasks included identifying deep safeties, blitzers, and man-on-man defenders.
+
+| Task                | Train Accuracy | Val Accuracy |
+| ------------------- | -------------- | ------------ |
+| Deep Safeties  | 91.3          | 90.8         |
+| Blitzer | 90.6           | 89.4      |
+| Man-on-Man | 83.1           | 80.5      |
+
 <h2>Explaining Football Defensive Coverage</h2>
 <p>
   The project is built on 
