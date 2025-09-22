@@ -18,7 +18,7 @@ while info['pff_passCoverage'].iloc[0] not in ["Cover-1", "Cover-2", "Cover-3", 
     play_ids = dc.get_play_ids_from_game_id(game)
     pid = random.choice(play_ids)
     info = dc.get_play_data_by_id(game, pid)
-print("Play selected.")
+print(f"Play selected. gid {game} pid {pid}")
 
 play = dc.get_play_tracking_by_id(game, pid)
 play_info = dc.get_play_data_by_id(game, pid)
