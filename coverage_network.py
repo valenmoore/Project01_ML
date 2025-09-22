@@ -34,7 +34,7 @@ class CoverageNetwork(Model):
         An override method that calls model layers on inputs
         :param inputs: the inputs to the model (shape (B, 11, 17))
         :param training: whether the model is training or not
-        :return: the model output (11, num_classes)
+        :return: the model output (num_classes)
         """
         # inputs: (batch, players, features)
         x = inputs
