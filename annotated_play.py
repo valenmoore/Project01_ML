@@ -4,16 +4,26 @@ from data_compiler import DataCompiler
 from play_analyzer import PlayAnalyzer
 
 class AnnotatedPlay:
+    """A class to store frame-by-frame predictions and locations of a specific play"""
     def __init__(self, dc: DataCompiler, analyzer: PlayAnalyzer, game_id, play_id):
+        """
+        Initializes empty arrays to store positions and predictions
+        :param dc: the DataCompiler instance
+        :param analyzer: the PlayAnalyzer instance for getting predictions from each frame
+        :param game_id: the game id of the specified play
+        :param play_id: the play id of the specified play
+        """
         self.dc = dc
         self.analyzer = analyzer
         self.game_id = game_id
         self.play_id = play_id
-        self.play_info = None
+        self.play_info = None  # play data to get offensive formation, etc
 
+        # ground truths for coverage and offensive formation
         self.real_coverage = ""
         self.real_off_formation = ""
 
+        # stores frame-by-frame player positions, coverage predictions, confidences, etc
         self.play_frames = []
         self.coverage_frames = []
         self.coverage_conf_frames = []
@@ -27,9 +37,10 @@ class AnnotatedPlay:
 
         self.before_snap_len = 0
 
-        self._load_data()
+        self._load_data()  # read in data from dc into arrays defined above
 
     def _load_data(self):
+        """Reads in play data and gets coverage, formation, and player predictions for each frame"""
         play_frames = self.dc.get_play_tracking_by_id(game_id=self.game_id, play_id=self.play_id)
         self.play_frames = play_frames
 
@@ -57,6 +68,7 @@ class AnnotatedPlay:
                 break
 
     def _postprocess_data(self):
+        """Uses average confidence to find two final safeties based on all frame results"""
         player_scores = defaultdict(float)
         frame_count = 0
 
@@ -76,9 +88,16 @@ class AnnotatedPlay:
         self.final_deep_safeties = best_ids
 
     def __len__(self):
+        """Returns the number of frames"""
         return len(self.play_frames)
 
     def __getitem__(self, key):
+        """
+        Returns info from a frame at the specified index.
+        If the index is after the snap, predictions are from the moment of the snap
+        :param key: the index of the frame
+        :return: a dictionary containing player data and predictions, and overall predictions
+        """
         if isinstance(key, int):
             idx = key
             if key >= self.before_snap_len:
