@@ -16,10 +16,13 @@
   <br>
   The model had the following accuracies for overall team tasks:
 </p>
-| Task                 | Train Accuracy | Val Accuracy |
-| -------------------- | -------------- | ------------ |
-| Defensive Coverage   | 98.7           | 97.5         |
-| Offensive Formation  | 98.6           | 96.5         |
+
+| Task                | Train Accuracy | Val Accuracy |
+| ------------------- | -------------- | ------------ |
+| Defensive Coverage  | 98.7           | 97.5         |
+| Offensive Formation | 98.6           | 96.5         |
+
+Success with offensive formation is particularly significant; the model is able to accurately predict offensive formation just from defensive formation.
 <h2>Explaining Football Defensive Coverage</h2>
 <p>
   The project is built on 
