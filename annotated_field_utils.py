@@ -14,12 +14,17 @@ class AnnotatedField:
     """
 
     def __init__(self, field_length=120, field_width=53.3, interval=100):
+        """
+        Initializes the AnnotatedField object with several arrays to hold players and other field elements
+        :param field_length: the pixel length of the field display
+        :param field_width: the pixel width of the field display
+        :param interval: the number of milliseconds between frames
+        """
         self.field_length = field_length
         self.field_width = field_width
         self.plot, self.fig, self.axs = self.create_field()
         self.home_color = "#f74036"
         self.away_color = "#3d19b3"
-        self.player_play_data = None
         self._interval = interval  # Interval in milliseconds for the animation timer
         self.player_scatters = []  # To hold player scatter objects
         self.jersey_texts = []  # To hold jersey number text objects
@@ -31,40 +36,29 @@ class AnnotatedField:
 
         self.annotated_play: AnnotatedPlay | None = None
 
-    def set_and_rescale_hm(self, heatmap):
-        # Field dimensions
-        field_length = 120.0
-        field_width = 53.3
-
-        # Heatmap dimensions
-        heatmap_rows, heatmap_cols = heatmap.shape
-
-        # Rescale heatmap to field dimensions
-        scale_x = field_length / heatmap_cols
-        scale_y = field_width / heatmap_rows
-
-        # Rescaling using interpolation
-        rescaled_heatmap = zoom(heatmap, (scale_y, scale_x), order=1)
-        self.hm = rescaled_heatmap
-
-    def show(self):
-        self.plot.show()
-
     def _update_field_title(self, new_title):
+        """
+        Updates the field title
+        :param new_title: the new title
+        :return: None
+        """
         self.axs[0].set_title(new_title)
 
     def create_field(self):
-        # Create field setup
+        """
+        Creates the field in matplotlib
+        :return: matplotlib plot, figure, and axes
+        """
         fig, axs = plt.subplots(1, 2, figsize=(15, 8), gridspec_kw={'width_ratios': [3, 1]})
         axs[0].set_xlim(0, self.field_length)
         axs[0].set_ylim(0, self.field_width)
         field_color = "#22a82d"
 
-        # Field outline
+        # field outline
         axs[0].add_patch(patches.Rectangle((0, 0), self.field_length, self.field_width, linewidth=2,
                                            edgecolor=field_color, facecolor=field_color))
 
-        # Yard lines and hashes (simplified)
+        # yard lines and hashes
         for x in range(20, 110, 10):
             axs[0].plot([x, x], [0, self.field_width], color="white", linewidth=1)
             axs[0].text(x, 1, str(x - 10 if x <= 50 else 110 - x), color="white", fontsize=15, ha='center',
@@ -74,7 +68,7 @@ class AnnotatedField:
 
         end_zone_color = "#30a9cf"
 
-        # End zones
+        # end zones
         axs[0].add_patch(
             patches.Rectangle((0, 0), 10, self.field_width, linewidth=2, facecolor=end_zone_color))
         axs[0].add_patch(
@@ -85,33 +79,30 @@ class AnnotatedField:
         axs[0].set_xticks([])
         axs[0].set_yticks([])
 
-        # Set up the side axis for displaying additional information
-        axs[1].axis("off")  # Turn off the axis
+        axs[1].axis("off")
         axs[1].set_title("Play Information")
 
         plt.tight_layout()
 
         return plt, fig, axs
 
-    def load_player_play_data(self, game_id, play_id):
-        """
-
-        :param game_id:
-        :param play_id:
-        :return:
-        """
-        self.player_play_data = self.dc.get_all_player_play_data(game_id, play_id)
-
     def plot_play_animation(self, play: AnnotatedPlay):
-        # self.plot_player_heatmap(play, "SS", color="Reds")
-        # self.plot_player_heatmap(play, "CB", color="Blues")
-        # self.plot_heatmap_on_field()
+        """
+        Begins the play animation from an AnnotatedPlay object
+        :param play: the AnnotatedPlay object to display
+        :return: None
+        """
         self.annotated_play = play
         ani = animation.FuncAnimation(self.fig, self.update_plot_play, frames=len(play), interval=self._interval,
                                       repeat=True, fargs=(play,))
         plt.show()
 
     def update_side_text(self, frame_info):
+        """
+        Updates the side text panel with prediction info
+        :param frame_info: a frame info from the AnnotatedPlay object
+        :return: none
+        """
         # Clear previous side text without resetting axis properties
         self.axs[1].cla()  # Use `cla()` instead of `clear()`
 
@@ -162,32 +153,13 @@ class AnnotatedField:
             y_pos += 4 * line_spacing
 
 
-
-        # Loop through player data and add text with rectangles
-        """for player in player_rows:
-            print(player.keys())
-            if player['routeRan']:  # Only display if there's a route
-                # Display Player's Jersey Number
-                name = player['displayName'].split(" ")[1].upper()
-                self.axs[1].text(0.5, y_pos, f"{name} #{player['jerseyNumber']} ({player['position']}):",
-                                 ha='center', va='top', fontweight='bold', fontsize=10, color="black",
-                                 transform=self.axs[1].transAxes, zorder=5)
-
-                # Display Speed and Acceleration
-                self.axs[1].text(0.5, y_pos + line_spacing, f"s: {player['s']} y/s, a: {player['a']} y/s²",
-                                 ha='center', va='top', fontweight='bold', fontsize=9, color="black",
-                                 transform=self.axs[1].transAxes, zorder=5)
-
-                # Display Route description
-                self.axs[1].text(0.5, y_pos + 2 * line_spacing, f"Route: {player['route']}",
-                                 ha='center', va='top', fontweight='bold', fontsize=9, color="black",
-                                 transform=self.axs[1].transAxes, zorder=5)
-
-
-                # Update y_pos for the next player's info
-                y_pos += 5 * line_spacing  # Move down by the height of the text + spacing"""
-
     def update_plot_play(self, frame, play):
+        """
+        Updates the play animation to a new frame
+        :param frame: the index of the current frame
+        :param play: the AnnotatedPlay object
+        :return: None
+        """
         # Clear previous players
         for scatter in self.player_scatters:
             scatter.remove()
@@ -214,12 +186,17 @@ class AnnotatedField:
         self.update_ball(player_rows)
         # self.plot_heatmap_on_field()
         self.update_side_text(frame_info)
-        self.plot_deep_safeties(frame_info, play.final_deep_safeties)
+        self.plot_deep_safeties(frame_info)
         self.plot_blitzers(frame_info)
         self.plot_man_defenders(frame_info)
         self._update_field_title(f"Game {player_rows.iloc[0]['gameId']} Play {player_rows.iloc[0]['playId']} -- Frame {frame}")
 
-    def plot_deep_safeties(self, frame_info, safety_ids):
+    def plot_deep_safeties(self, frame_info):
+        """
+        Displays zones for the predicted deep safeties
+        :param frame_info: a frame info from the AnnotatedPlay object
+        :return: None
+        """
         players = frame_info["players"]
 
         safety_ids = frame_info["deep_safeties"]
@@ -264,6 +241,11 @@ class AnnotatedField:
             self.misc.append(oval)  # store for clearing next frame
 
     def plot_blitzers(self, frame_info):
+        """
+        Displays red arrows for the predicted blitzers
+        :param frame_info: a frame info from the AnnotatedPlay object
+        :return: None
+        """
         players = frame_info["players"]
         blitzers = frame_info["blitzers"]
         for blitz_id in blitzers:
@@ -286,6 +268,11 @@ class AnnotatedField:
             self.misc.append(arrow)
 
     def plot_man_defenders(self, frame_info):
+        """
+        Displays black arrows for the predicted man-on-man defenders
+        :param frame_info: a frame info from the AnnotatedPlay object
+        :return: None
+        """
         players = frame_info["players"]
         man_defs = frame_info["man"]
         for pid in man_defs:
@@ -309,6 +296,13 @@ class AnnotatedField:
 
 
     def plot_players(self, player_rows, show_numbers=True, show_names=True):
+        """
+        Plots circles for each of the players
+        :param player_rows: the player rows for a frame, with x and y coordinates
+        :param show_numbers: if True, displays player number in circle (defaults to True)
+        :param show_names: if True, displays player names under circle (defaults to True)
+        :return: None
+        """
         teams = []
         for i, row in player_rows.iterrows():
             if row['club'] not in teams:
@@ -327,10 +321,6 @@ class AnnotatedField:
                 self.player_scatters.append(scatter)
                 if show_names:
                     name = row['displayName']
-                    # SETS NAME TO COVERAGE
-                    nfl_id = int(row['nflId'])
-                    if self.player_play_data is not None:
-                        name = self.player_play_data[self.player_play_data['nflId'] == nfl_id]['pff_defensiveCoverageAssignment'].iloc[0]
                     name_text = self.axs[0].text(pos[0], pos[1] - 1, name, color=color, fontsize=5,
                                                  ha="center",
                                                  va="center", fontweight="bold", zorder=2)
@@ -341,6 +331,11 @@ class AnnotatedField:
                     self.jersey_texts.append(text)
 
     def update_ball(self, player_rows):
+        """
+        Plots the ball if it is in the player rows (it usually isn't)
+        :param player_rows: the player rows for a frame, with x and y coordinates
+        :return: None
+        """
         # Find the ball in player rows
         ball_data = next((row for _, row in player_rows.iterrows() if row['displayName'] == "Football"), None)
         if ball_data:
@@ -353,7 +348,3 @@ class AnnotatedField:
             else:
                 # Update position of existing ball marker
                 self.ball_marker.set_center(ball_pos)
-
-    def plot_heatmap_on_field(self):
-        self.axs[0].imshow(self.hm, extent=(0, 120, 0, 53, 3),
-                           origin='lower', alpha=0.6, cmap='coolwarm', zorder=2)
