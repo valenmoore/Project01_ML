@@ -6,7 +6,10 @@ from coverage_network import CoverageNetwork
 from player_coverage_network import PlayerCoverageNetwork
 
 class PlayAnalyzer:
+    """Uses saved models to get predictions for a play"""
+
     def __init__(self):
+        """Loads models for predictions"""
         self.coverage_model_path = "./models/player_coverage/19/model.keras"
         self.off_formation_model_path = "./models/offense_formation/0/model.keras"
         self.coverage_model = self._load_coverage_model()
@@ -22,6 +25,7 @@ class PlayAnalyzer:
         return load_model(self.coverage_model_path, custom_objects={"GNNCoverageNetwork": CoverageNetwork})
 
     def _load_player_models(self):
+        """Loads safety models for each type of coverage, stored in a dictionary by coverage name"""
         coverages = ["Cover-1", "Cover-2", "Cover-3", "Quarters"]
         models = {}
         for coverage in coverages:
@@ -30,10 +34,12 @@ class PlayAnalyzer:
         return models
 
     def _construct_model_inputs(self, frame):
+        """Takes tracking data from a frame and constructs the input tensor that all models expect"""
         wanted_keys = ['x', 'y', 's', 'a', 'o', 'dir']  # values to pass into network
 
         model_inputs = []
         for _, player in frame.iterrows():
+            # only look at defensive players
             if player["position"] in constants.D_POSITIONS:
                 pos_idx = constants.D_POSITIONS.index(player['position'])
                 one_hot = np.zeros(len(constants.D_POSITIONS))

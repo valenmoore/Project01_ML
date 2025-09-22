@@ -30,6 +30,12 @@ class CoverageNetwork(Model):
         self.num_classes = num_classes
 
     def call(self, inputs, training=False):
+        """
+        An override method that calls model layers on inputs
+        :param inputs: the inputs to the model (shape (B, 11, 17))
+        :param training: whether the model is training or not
+        :return: the model output (11, num_classes)
+        """
         # inputs: (batch, players, features)
         x = inputs
         player_feat = self.player_feature(x)  # generate feature vector for each player
