@@ -29,7 +29,7 @@ The model was mostly successful at predicting binary player-by-player tasks. The
 | Task                | Train Accuracy | Val Accuracy |
 | ------------------- | -------------- | ------------ |
 | Deep Safeties  | 91.3          | 90.8         |
-| Blitzer | 90.6           | 89.4      |
+| Blitzer | 85.6           | 84.4      |
 | Man-on-Man | 83.1           | 80.5      |
 
 <h2>Explaining Football Defensive Coverage</h2>
