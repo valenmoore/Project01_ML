@@ -1,4 +1,7 @@
-"""Trains the CoverageNetwork model to recognize defensive pass coverage (e.g. Cover-1, Cover-2, Cover-3, or Quarters)"""
+"""
+Trains the CoverageNetwork model to recognize defensive pass coverage
+(e.g. Cover-1, Cover-2, Cover-3, or Quarters)
+"""
 import os
 from tensorflow.keras.callbacks import ModelCheckpoint
 from data_compiler import DataCompiler

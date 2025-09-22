@@ -4,7 +4,11 @@ import tensorflow as tf
 class PlayerCoverageNetwork(Model):
     """The Tensorflow model used to predict player-by-player defensive assignments like safeties and man defenders"""
     def __init__(self, **kwargs):
-        super(PlayerCoverageNetwork, self).__init__(**kwargs)  # initialize Model class
+        """
+        Initializes layers for the PlayerCoverageNetwork class
+        :param kwargs: any other arguments from the tf.keras Model class
+        """
+        super(PlayerCoverageNetwork, self).__init__(**kwargs)  # if mama ain't happy nobody's happy
 
         self.player_features = layers.TimeDistributed(
             # loop through each player

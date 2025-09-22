@@ -1,3 +1,6 @@
+"""
+Trains the PlayerCoverageNetwork class to predict player-by-player labels, like safeties, blitzers, and man defenders
+"""
 import os
 import tensorflow as tf
 from tensorflow.keras.callbacks import ModelCheckpoint
@@ -16,12 +19,14 @@ movements = dc.get_all_plays_movement(position_filter=position_filter, before_sn
 wanted_keys = ['x', 'y', 's', 'a', 'o', 'dir']  # values to pass into network
 num_features = len(wanted_keys) + len(constants.D_POSITIONS)
 X, y = [], []
-# ["MAN", "2R", "2L", "3R", "3M", "3L", "4OR", "4OL", "4IR", "4IL", "FR", "FL", "HCR", "HCL", "CFR", "CFL", "HOL", "DF", "PRE"]
 
+# deep safety coverage names
 deep_coverages = ["DF", "PRE", "2R", "2L", "3R", "3M", "3L", "4OR", "4OL", "4IR", "4IL"]
-underneath_coverages = ["FR", "FL", "HCR", "HCL", "CFR", "CFL", "HOL"]
 
+# the coverage to detect for (will only look at plays from that coverage)
+# a separate model is trained for each of the four common coverages
 current_coverage = "Cover-1"
+current_task = "SAFETIES"
 
 for play in movements:
     first_frame = play[0]
@@ -61,13 +66,21 @@ for play in movements:
         else:
             # coverage assignment as integer
             cov_str = player_row['pff_defensiveCoverageAssignment'].iloc[0]
-            label = 0  # default to 0
+            if current_task == "BLITZ":
+                label = 1  # default to 1 for blitzers because only players with no coverage assignment are blitzing
+            else:
+                label = 0  # default to 0
             if cov_str in constants.PLAYER_COVERAGE_ASSIGNMENTS:
-                """if cov_str in deep_coverages:
-                    # player is deep safety
-                    label = 1"""
-                if cov_str == "MAN":
-                    label = 1
+                if current_task == "SAFETIES":
+                    if cov_str in deep_coverages:
+                        # player is deep safety
+                        label = 1
+                if current_task == "MAN":
+                    # set label to 1 if player is a man defender
+                    if cov_str == "MAN":
+                        label = 1
+                elif current_task == "BLITZ":
+                    label = 0  # if the player has a coverage assignment, they are not a blitzer
 
         frame_labels.append(label)
 
@@ -75,12 +88,13 @@ for play in movements:
         print("frame_labels length not equal to position_filter at", game_id, play_id)
         continue
 
-    """if not 1 in frame_labels:
-        continue"""
-    label = frame_labels
+    if current_task == "SAFETIES":
+        # skip any plays with no safeties
+        if not 1 in frame_labels:
+            continue
 
     X.append(play_features)
-    y.append(label)
+    y.append(frame_labels)
 
 max_len = 50
 
@@ -115,15 +129,14 @@ print(y.shape)
 # y_one_hot = tf.one_hot(y, depth=len(coverage_assignments) + 1)
 
 
-X_train_gnn, X_test_gnn, y_train_gnn, y_test_gnn = train_test_split(
+X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42
 )
 
+# binary crossentropy because each player has a binary label
 model.compile(
     optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
-    # loss=weighted_sparse_cce(weights_tensor),
     loss=tf.keras.losses.BinaryCrossentropy(),
-    # loss=masked_sparse_cce,
     metrics=['accuracy']
 )
 
@@ -138,9 +151,9 @@ checkpoint_cb = ModelCheckpoint(
 )
 
 model.fit(
-    X_train_gnn,
-    y_train_gnn,
-    validation_data=(X_test_gnn, y_test_gnn),
+    X_train,
+    y_train,
+    validation_data=(X_test, y_test),
     batch_size=32,
     epochs=100,
     callbacks=[checkpoint_cb]
