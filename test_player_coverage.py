@@ -46,7 +46,7 @@ classifier = Classifier(dc)
 field = Field(classifier, dc)
 
 current_coverage = "Cover-1"
-ids = dc.get_game_ids_by_coverage(current_coverage)
+ids = dc.get_play_ids_by_coverage(current_coverage)
 selected_pair = ids.sample(n=1)
 game_id, play_id = selected_pair["gameId"].iloc[0], selected_pair["playId"].iloc[0]
 print(game_id, play_id)
