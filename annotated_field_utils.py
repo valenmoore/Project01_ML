@@ -6,6 +6,7 @@ from matplotlib.patches import FancyArrow
 from matplotlib import animation
 from scipy.ndimage import zoom
 from annotated_play import AnnotatedPlay
+plt.rcParams['font.family'] = 'monospace'
 
 class AnnotatedField:
     """
@@ -61,9 +62,10 @@ class AnnotatedField:
         # yard lines and hashes
         for x in range(20, 110, 10):
             axs[0].plot([x, x], [0, self.field_width], color="white", linewidth=1)
-            axs[0].text(x, 1, str(x - 10 if x <= 50 else 110 - x), color="white", fontsize=15, ha='center',
+            yard_num = str(x - 10 if x <= 50 else 110 - x)
+            axs[0].text(x, 1, yard_num[0] + " " + yard_num[1], color="white", fontsize=15, ha='center',
                         fontweight="bold")
-            axs[0].text(x, self.field_width - 2, str(x - 10 if x <= 50 else 110 - x), color="white", fontsize=15,
+            axs[0].text(x, self.field_width - 2, yard_num[0] + " " + yard_num[1], color="white", fontsize=15,
                         ha='center', fontweight="bold")
 
         end_zone_color = "#30a9cf"
