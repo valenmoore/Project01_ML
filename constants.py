@@ -1,3 +1,4 @@
+# Contains constants for use throughout the project, mostly for indexing string values into integers
 ROUTES = ["GO", "HITCH", "FLAT", "OUT", "CROSS", "SCREEN", "SLANT", "POST", "IN", "ANGLE", "CORNER", "WHEEL"]
 POSITIONS = ['QB', 'T', 'TE', 'WR', 'DE', 'NT', 'SS', 'FS', 'G', 'OLB', 'DT', 'CB', 'RB', 'C', 'ILB', 'MLB', 'FB', 'DB', 'LB']
 D_POSITIONS = ['DE', 'NT', 'SS', 'FS', 'OLB', 'DT', 'CB', 'ILB', 'MLB', 'DB', 'LB']
