@@ -34,6 +34,7 @@ class AnnotatedField:
         self.ball_marker = None  # To hold the ball marker for animation
         self.side_text = None
         self.hm = None
+        self.display_annotations = True
 
         self.annotated_play: AnnotatedPlay | None = None
 
@@ -187,10 +188,11 @@ class AnnotatedField:
         # Update ball position if it's part of the frame data
         self.update_ball(player_rows)
         # self.plot_heatmap_on_field()
-        self.update_side_text(frame_info)
-        self.plot_deep_safeties(frame_info)
-        self.plot_blitzers(frame_info)
-        self.plot_man_defenders(frame_info)
+        if self.display_annotations:
+            self.update_side_text(frame_info)
+            self.plot_deep_safeties(frame_info)
+            self.plot_blitzers(frame_info)
+            self.plot_man_defenders(frame_info)
         self._update_field_title(f"Game {player_rows.iloc[0]['gameId']} Play {player_rows.iloc[0]['playId']} -- Frame {frame}")
 
     def plot_deep_safeties(self, frame_info):

@@ -8,6 +8,11 @@ class DataCompiler:
     def __init__(self):
         """Loads data from NFL Big Data Bowl data files"""
         self.data_path = "parquet_data/week_5_data.parquet"
+        self.tracking_dir_path = "nfl-big-data-bowl-2025/old_tracking"
+        self.players_data_path = "./nfl-big-data-bowl-2025/players.csv"
+        self.plays_data_path = "./nfl-big-data-bowl-2025/plays.csv"
+        self.player_play_data_path = "./nfl-big-data-bowl-2025/player_play.csv"
+
         self.data = self.load_data()
         self.players = self.load_player_data()
         self.data = self.merge_add_position_to_data()
@@ -37,11 +42,11 @@ class DataCompiler:
             df_list = []
             MIN_COUNT = 4  # first file to read
             MAX_COUNT = 5  # last file to read
-            files = sorted(os.listdir("nfl-big-data-bowl-2025/old_tracking"))
+            files = sorted(os.listdir(self.tracking_dir_path))
             for i, filename in enumerate(files):
                 if filename.endswith(".csv") and MIN_COUNT <= i < MAX_COUNT:
                     print("Loading", filename)
-                    df = pd.read_csv(f'nfl-big-data-bowl-2025/old_tracking/{filename}', dtype={'time': str})
+                    df = pd.read_csv(f'{self.tracking_dir_path}/{filename}', dtype={'time': str})
                     df_list.append(df)
             data = pd.concat(df_list, ignore_index=True)
 
@@ -50,17 +55,17 @@ class DataCompiler:
 
     def load_player_data(self):
         """Loads player data from players.csv"""
-        df = pd.read_csv(f'./nfl-big-data-bowl-2025/players.csv')
+        df = pd.read_csv(self.players_data_path)
         return df
 
     def load_plays_data(self):
         """Loads plays data from plays.csv"""
-        df = pd.read_csv(f'./nfl-big-data-bowl-2025/plays.csv')
+        df = pd.read_csv(self.plays_data_path)
         return df
 
     def load_player_play_data(self):
         """Loads player data from each play player_play.csv"""
-        df = pd.read_csv(f'./nfl-big-data-bowl-2025/player_play.csv')
+        df = pd.read_csv(self.player_play_data_path)
         return df
 
     def get_play_data_by_id(self, game_id, play_id):
