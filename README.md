@@ -32,6 +32,9 @@ The model was mostly successful at predicting binary player-by-player tasks. The
 | Blitzer | 85.2           | 83.6      |
 | Man-on-Man | 83.1           | 80.5      |
 
+The primary purpose of the model was zone pass coverage, so less time was spent on the Blitzer and Man-on-Man predictions. This is an area of improvement for the project.
+
+<iframe src="https://drive.google.com/file/d/1OLJJe3H37FG1A5j-A10HWTpmKvuXpi8E/preview" width="640" height="480" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 <h2>Explaining Football Defensive Coverage</h2>
 <p>
   The project is built on 
