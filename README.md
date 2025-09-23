@@ -37,6 +37,11 @@ The model also predicts player-level binary tasks including identifying deep saf
 
 Deep safeties are shown with yellow zones, man defenders with short black arrows, and blitzers with long red arrows. Predicted formations are displayed in green if correct.
 
+The model outputs a Matplotlib video of predictions (can be obtained by running `main.py`). Deep safeties are shown with yellow zones around them; Man defenders are shown with short black arrows; Blitzers are shown with long red arrows. Predicted offensive and defensive formations are shown in the right panel in green if correct. Video demos are shown below.
+
+![ScreenRecording2025-09-23at9 26 31AM-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/1adab242-5609-4c8b-9bd9-ca01e4b0ad25)
+![ScreenRecording2025-09-23at10 02 55AM-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/39b9aca1-b097-4eed-a3e2-dd40fef1ba78)
+
 ---
 
 ## Model Architecture
@@ -57,7 +62,14 @@ Any player with a prediction probability above 75% was classified as a blitzer o
 
 The project is hosted on this GitHub repository, with the exception of the NFL Big Data Bowl Dataset due to license restrictions.  
 
-If you have access to the dataset, update the paths in `data_compiler.py`.  
+If you have access to the dataset, update the following paths in `data_compiler.py`:
+```
+self.data_path = "parquet_data/week_5_data.parquet"
+self.tracking_dir_path = "nfl-big-data-bowl-2025/old_tracking"
+self.players_data_path = "./nfl-big-data-bowl-2025/players.csv"
+self.plays_data_path = "./nfl-big-data-bowl-2025/plays.csv"
+self.player_play_data_path = "./nfl-big-data-bowl-2025/player_play.csv"
+```
 
 - Running any script starting with `train` trains a specified model.  
 - Running `main.py` displays the model's results in a Matplotlib window.  
