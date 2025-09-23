@@ -26,6 +26,7 @@ deep_coverages = ["DF", "PRE", "2R", "2L", "3R", "3M", "3L", "4OR", "4OL", "4IR"
 # the coverage to detect for (will only look at plays from that coverage)
 # a separate model is trained for each of the four common coverages
 current_coverage = "Cover-1"
+# choose either BLITZ, MAN, or SAFETIES for training task
 current_task = "BLITZ"
 
 for play in movements:
