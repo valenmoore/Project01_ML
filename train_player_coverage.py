@@ -35,7 +35,7 @@ for play in movements:
     play_id = first_frame['playId'].iloc[0]
 
     play_data = dc.get_play_data_by_id(game_id, play_id)
-    if play_data["pff_passCoverage"].iloc[0] != current_coverage:
+    if play_data["pff_passCoverage"].iloc[0] != current_coverage and current_task == "SAFETIES":
         continue  # skip plays not matching current coverage
 
     player_play_data = dc.get_all_player_play_data(game_id, play_id)
